@@ -96,11 +96,17 @@ def splitVskDataDict(vsk):
     if pyver == 2: return vsk.keys(),np.asarray(vsk.values())
     if pyver == 3: return list(vsk.keys()),np.asarray(list(vsk.values()))
 
-def markerKeys():
+def markerKeys(var):
     marker_keys = ['RASI','LASI','RPSI','LPSI','RTHI','LTHI','RKNE','LKNE','RTIB',
                'LTIB','RANK','LANK','RTOE','LTOE','LFHD','RFHD','LBHD','RBHD',
                'RHEE','LHEE','CLAV','C7','STRN','T10','RSHO','LSHO','RELB','LELB',
                'RWRA','RWRB','LWRA','LWRB','RFIN','LFIN']
+    if var==1:
+        for i in range(len(marker_keys)):
+            marker_keys[i] = 'Player:'+marker_keys[i]
+    if var==2:
+        for i in range(len(marker_keys)):
+            marker_keys[i] = 'Player+1:'+marker_keys[i]
     return marker_keys
 
 def loadEZC3D(filename):
@@ -112,7 +118,7 @@ def loadEZC3D(filename):
     data = dataAsArray(dataclass.Data['Markers'])
     return [data,None,None]
 
-def loadC3D(filename):
+def loadC3D(filename,var):
 
     if useEZC3D == True:
         print("Using EZC3D")
@@ -121,6 +127,13 @@ def loadC3D(filename):
     reader = c3d.Reader(open(filename, 'rb'))
     
     labels = reader.get('POINT:LABELS').string_array
+    labels_1 = []
+    labels_2 = []
+    for i in labels:
+        if i[:7]=="Player:":
+            labels_1.append(i)
+        if i[:7]=="Player+":
+            labels_2.append(i)
     mydict = {}
     mydictunlabeled ={}
     data = []
@@ -128,8 +141,10 @@ def loadC3D(filename):
     prog_val = 1
     counter = 0
     data_length = reader.last_frame() - reader.first_frame()
-    markers=[str(label.rstrip()) for label in labels]
-    
+    if var==1:
+        markers=[str(label.rstrip()) for label in labels_1]
+    if var==2:
+         markers=[str(label.rstrip()) for label in labels_2]
     for frame_no, points, analog in reader.read_frames(True,True):
         for label, point in zip(markers, points):
             #Create a dictionary with format LFHDX: 123 
@@ -234,14 +249,15 @@ def loadCSV(filename):
     
     return [motionData,unlabeledMotionData,labels]
 
-def loadData(filename,rawData=True):
+def loadData(filename,var,rawData=True):
         
         print(filename)
         if str(filename).endswith('.c3d'):
                 
-                data = loadC3D(filename)[0]
+                data = loadC3D(filename,var)[0]
+                print(len(data))
                 #add any missing keys
-                keys = markerKeys()
+                keys = markerKeys(var)
                 for frame in data:
                     for key in keys:
                         frame.setdefault(key,[np.nan,np.nan,np.nan])

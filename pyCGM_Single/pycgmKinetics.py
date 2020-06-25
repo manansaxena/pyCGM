@@ -265,8 +265,9 @@ def getKinetics(data, Bodymass):
                     segTemp[s+seg]['Dist'] = frame[s+'Radius'] 
                     
                 if seg == 'Hand':
-                    segTemp[s+seg]['Prox'] = frame[s+'Radius']  
+                    segTemp[s+seg]['Prox'] = frame[s+'Radius']
                     segTemp[s+seg]['Dist'] = frame[s+'Hand'] 
+                    
 
                 if seg == 'Head':
                     segTemp[seg]['Prox'] = frame['Back_Head']
@@ -352,11 +353,11 @@ def getKinetics(data, Bodymass):
             forIter = segTemp.iteritems()
         if pyver == 3:
             forIter = segTemp.items()
-            
-        for attr, value in forIter:
-           vals.append(value['val'])
-           #print(value['val'])
         
+        for attr, value in forIter:
+            vals.append(value['val'])
+           #print(value['val'])
+#         print(vals)
         CoM_coords[ind,:] = sum(vals) / Bodymass
         
         #add all torques and masses
@@ -368,17 +369,5 @@ def getKinetics(data, Bodymass):
 
         #calculate whole body centre of mass coordinates and add to CoM_coords array
         #CoM_coords[ind,:] = sum(torques) / sum(masses) 
-            
+#         print(CoM_coords[0])
     return CoM_coords
-
-
-
-            
-            
-
- 
-             
-    
-
-  
-    

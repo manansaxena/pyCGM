@@ -1882,8 +1882,11 @@ def handJointCenter(frame,elbowJC,wristJC,vsk=None):
     R_delta =( R_handThickness/2 + mm )  
     L_delta =( L_handThickness/2 + mm )  
     
-    LHND = findJointC(LWRI,LWJC,LFIN,L_delta)
-    RHND = findJointC(RWRI,RWJC,RFIN,R_delta)
+#     LHND = findJointC(LWRI,LWJC,LFIN,L_delta)
+#     RHND = findJointC(RWRI,RWJC,RFIN,R_delta)
+    #BLUNDER
+    LHND = np.array(LWRI)
+    RHND = np.array(RWRI)
     
         # Left
     z_axis = [LWJC[0]-LHND[0],LWJC[1]-LHND[1],LWJC[2]-LHND[2]]

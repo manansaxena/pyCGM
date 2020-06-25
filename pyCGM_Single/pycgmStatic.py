@@ -365,24 +365,27 @@ def pelvisJointCenter(frame):
     # RPSI 
     # LPSI
 
-    RASI = frame['RASI']
-    LASI = frame['LASI']
+    RASI = frame.get('RASI')
+    LASI = frame.get('LASI')
+#     print(type(RASI),type(LASI))
     
     try:
-        RPSI = frame['RPSI']    
-        LPSI = frame['LPSI'] 
+        RPSI = frame.get('RPSI')    
+        LPSI = frame.get('LPSI') 
         #  If no sacrum, mean of posterior markers is used as the sacrum
         sacrum = (RPSI+LPSI)/2  
     except:
         pass #going to use sacrum marker
 
     if 'SACR' in frame:
-        sacrum = frame['SACR']
+        sacrum = frame.get('SACR')
         
         
     # REQUIRED LANDMARKS:
     # origin
     # sacrum 
+    
+#     print(RASI,LASI)
     
     # Origin is Midpoint between RASI and LASI
     origin = (RASI+LASI)/2
