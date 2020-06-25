@@ -1,5 +1,7 @@
 # pyCGM
 
+# PyCGM line 1887 is wrong as of now
+
 **Python Module for the Conventional Gait Model**
 *calculates Kinematics and Center of Mass*
 
