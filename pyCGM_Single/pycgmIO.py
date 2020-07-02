@@ -125,7 +125,7 @@ def loadC3D(filename,var):
         return loadEZC3D(filename)
 
     reader = c3d.Reader(open(filename, 'rb'))
-    
+
     labels = reader.get('POINT:LABELS').string_array
     labels_1 = []
     labels_2 = []
@@ -146,14 +146,20 @@ def loadC3D(filename,var):
     if var==2:
          markers=[str(label.rstrip()) for label in labels_2]
     for frame_no, points, analog in reader.read_frames(True,True):
+        if var==1:
+            a = points[0:42,:]
+            b = points[150:190,:]
+            points = np.concatenate((a,b),axis=0)
+        if var==2:
+            points = points[42:149,:]
         for label, point in zip(markers, points):
-            #Create a dictionary with format LFHDX: 123 
+            #Create a dictionary with format LFHDX: 123
             if label[0]=='*':
                 if point[0]!=np.nan:
                     mydictunlabeled[label]=point
             else:
                 mydict[label] = point
-            
+
         data.append(mydict)
         dataunlabeled.append(mydictunlabeled)
         mydict = {}
@@ -246,14 +252,14 @@ def loadCSV(filename):
             break
     rows=iter(rows)
     labels,motionData,unlabeledMotionData,freq=parseTrajectories(rows,framesNumber)
-    
+
     return [motionData,unlabeledMotionData,labels]
 
 def loadData(filename,var,rawData=True):
-        
+
         print(filename)
         if str(filename).endswith('.c3d'):
-                
+
                 data = loadC3D(filename,var)[0]
                 print(len(data))
                 #add any missing keys
@@ -262,14 +268,14 @@ def loadData(filename,var,rawData=True):
                     for key in keys:
                         frame.setdefault(key,[np.nan,np.nan,np.nan])
                 return data
-                
+
         elif str(filename).endswith('.csv'):
-                return loadCSV(filename)[0]		
+                return loadCSV(filename)[0]
 
 def dataAsArray(data):
     """
-    convert a dictionary of markers with xyz data as an array 
-    to an array of dictionaries 
+    convert a dictionary of markers with xyz data as an array
+    to an array of dictionaries
 
     Assumes all markers have the same length of data
     """
@@ -298,24 +304,24 @@ def dataAsArray(data):
 
 def dataAsDict(data,npArray=False):
     """
-    convert the frame by frame based data to a dictionary of keys 
+    convert the frame by frame based data to a dictionary of keys
     with all motion data as an array per key
-    
+
     takes an option npArray flag, when set to true, will return a numpy array
     for each key instead of a list
-    
+
     """
     dataDict = {}
-    
+
     for frame in data:
         for key in frame:
             dataDict.setdefault(key,[])
             dataDict[key].append(frame[key])
-    
+
     if npArray == True:
         for key in dataDict:
             dataDict[key] = np.array(dataDict[key])
-        
+
         return dataDict
 
 def writeKinetics(CoM_output,kinetics):
@@ -323,10 +329,10 @@ def writeKinetics(CoM_output,kinetics):
     temp function to write kinetics data.  Just uses numpy.save
     """
     np.save(CoM_output,kinetics)
-        
+
 def writeResult(data,filename,**kargs):
         """
-        Writes the result of the calculation into a csv file 
+        Writes the result of the calculation into a csv file
         @param data Motion Data as a matrix of frames as rows
         @param filename Name to save the csv
         @param kargs
@@ -454,7 +460,7 @@ def smKeys():
             'RightWristWidth',
             ]
     return keys
-        
+
 def loadVSK(filename,dict=True):
         #Check if the filename is valid
         #if not, return None
@@ -464,13 +470,13 @@ def loadVSK(filename,dict=True):
         # Create Dictionary to store values from VSK file
         viconVSK = {}
         vskMarkers = []
-        
+
         #Create an XML tree from file
         tree = ET.parse(filename)
         #Get the root of the file
         # <KinematicModel>
         root = tree.getroot()
-        
+
         #Store the values of each parameter in a dictionary
         # the format is (NAME,VALUE)
         vsk_keys=[r.get('NAME') for r in root[0]]
@@ -483,26 +489,26 @@ def loadVSK(filename,dict=True):
 
         #vsk_data=np.asarray([float(R.get('VALUE')) for R in root[0]])
         #print vsk_keys
-        if dict==False: return createVskDataDict(vsk_keys,vsk_data) 
-        
+        if dict==False: return createVskDataDict(vsk_keys,vsk_data)
+
         return [vsk_keys,vsk_data]
 
 
-def splitDataDict(motionData):       
+def splitDataDict(motionData):
     if pyver == 2:
         labels = motionData[0].keys()
         values = []
         for i in range(len(motionData)):
             values.append(np.asarray(motionData[i].values()))
-            
+
         return values,labels
-        
+
     if pyver == 3:
         labels = list(motionData[0].keys())
         values = []
         for i in range(len(motionData)):
             values.append(np.asarray(list(motionData[i].values())))
-            
+
         return values,labels
 
 def combineDataDict(values,labels):
@@ -513,9 +519,9 @@ def combineDataDict(values,labels):
             tmp_dict[labels[j]]=values[i][j]
         data.append(tmp_dict)
         tmp_dict = {}
-        
+
     return data
-        
+
 
 def make_sure_path_exists(path):
     try:
@@ -523,4 +529,3 @@ def make_sure_path_exists(path):
     except OSError as exception:
         if exception.errno != errno.EEXIST:
             raise
-            
